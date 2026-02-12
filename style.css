@@ -1,0 +1,11 @@
+/* style.css */
+body {
+    font-family: Arial
+        /* COMENTARIO_ERROR: falta punto y coma al final de la propiedad */
+        background: white;
+}
+
+h1 {
+    color: red
+        /* COMENTARIO_ERROR: falta punto y coma */
+}
