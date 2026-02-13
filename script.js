@@ -1,5 +1,5 @@
 export function sum(a, b) {
-    return a + b    // COMENTARIO_ERROR: falta punto y coma (lint)
+    return a + b;    // COMENTARIO_ERROR: falta punto y coma (lint)
 }
 
 const params = new URLSearchParams(location.search);
@@ -9,4 +9,5 @@ const el = document.getElementById("welcome");
 if (el) {
     el.innerHTML = "Hola, " + user; // <- sink
 }
+
 
