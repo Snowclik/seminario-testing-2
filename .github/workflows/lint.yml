@@ -12,9 +12,9 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v5
       - name: Instalar Node.js
-        uses: actions/setup-node@v6.2.0
+        uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '20'
       - name: Instalar dependencias
         run: npm ci
       - name: Ejecutar ESLint con autocorrección

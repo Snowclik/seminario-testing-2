@@ -14,7 +14,7 @@ jobs:
           - name: Setup Node.js (para linkinator)
             uses: actions/setup-node@v4
             with:
-              node-version: "24"
+              node-version: "20"
           - name: Servir sitio con Python (background)
             run: |
               python3 -m http.server 8000 --bind 127.0.0.1 &
