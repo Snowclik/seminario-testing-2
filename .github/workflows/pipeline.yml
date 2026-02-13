@@ -21,9 +21,19 @@ jobs:
       js_path: "script.js"
       css_path: "style.css"
       artifact_name: "site-minified"
-
-  lighthouse:
+      
+  test:
     needs: minify
+    uses: ./.github/workflows/test.yml
+    with:
+      input_artifact: site-minified
+
+  lint:
+    needs: minify
+    uses: ./.github/workflows/lint_and_format.yml
+  
+  lighthouse:
+    needs: test
     uses: ./.github/workflows/lightHouse.yml
     with:
       input_artifact: "site-minified"
@@ -38,7 +48,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Descargar sitio listo (incluye /report/)
+      - name: Descargar sitio listo
         uses: actions/download-artifact@v4
         with:
           name: "site-ready"
