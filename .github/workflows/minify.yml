@@ -1,0 +1,71 @@
+name: minify
+
+on:
+  workflow_call:
+    inputs:
+      js_path:
+        type: string
+        required: false
+        default: "*.js"
+      css_path:
+        type: string
+        required: false
+        default: "*.css"
+      artifact_name:
+        type: string
+        required: false
+        default: "site-minified"
+
+jobs:
+  minify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Copiar sitio a site/ (staging)
+        run: |
+          mkdir -p site
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='.lighthouseci' \
+            --exclude='report' \
+            ./ site/
+
+      - name: Minificar (sobrescribe mismo nombre dentro de site/)
+        run: |
+          JS="site/${{ inputs.js_path }}"
+          CSS="site/${{ inputs.css_path }}"
+
+          if [ ! -f "$JS" ]; then echo "No existe $JS"; exit 1; fi
+          if [ ! -f "$CSS" ]; then echo "No existe $CSS"; exit 1; fi
+
+            # 1) Minificar TODOS los CSS (sobrescribe el mismo archivo)
+          find site -type f -name "*.css" ! -name "*.min.css" -print0 | while IFS= read -r -d '' f; do
+            npx --yes -p clean-css-cli cleancss -o "${f}.tmp" "$f"
+            mv "${f}.tmp" "$f"
+          done
+
+          # 2) Minificar TODOS los JS (sobrescribe el mismo archivo)
+          find site -type f -name "*.js" ! -name "*.min.js" -print0 | while IFS= read -r -d '' f; do
+            # Si es módulo (tiene import/export), terser debe usar --module
+            if grep -qE '^\s*(import|export)\s' "$f"; then
+              npx --yes terser "$f" -o "${f}.tmp" -c -m --module
+            else
+              npx --yes terser "$f" -o "${f}.tmp" -c -m
+            fi
+            mv "${f}.tmp" "$f"
+          done
+
+
+      - name: Subir artifact con el sitio minificado
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: site
+          retention-days: 7
